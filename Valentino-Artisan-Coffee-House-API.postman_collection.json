@@ -1,0 +1,466 @@
+{
+  "info": {
+    "name": "Valentino Artisan Coffee House API",
+    "description": "API testing and automation practice for Valentino's Artisan Coffee House API. This collection was forked and extended with test scripts and validations as part of API automation practice.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "status",
+      "item": [
+        {
+          "name": "Get API status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200)",
+                  "});",
+                  "",
+                  "pm.test(\"Header\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"X-Powered-By\")).to.eql(\"Express\")",
+                  "})"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "status"
+              ]
+            },
+            "description": "Retrieve the current status of the API"
+          },
+          "response": []
+        }
+      ],
+      "description": "Get the status of the API."
+    },
+    {
+      "name": "products",
+      "item": [
+        {
+          "name": "Get all products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "description": "The page number to fetch",
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "category",
+                  "value": "cookie",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "3",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Retrieve a paginated list of products."
+          },
+          "response": []
+        },
+        {
+          "name": "Get single product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let response;",
+                  "",
+                  "pm.test(\"Response body is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "    response = pm.response.json();",
+                  "})",
+                  "",
+                  "pm.test(\"All info should be present\", function () {",
+                  "    pm.expect(response.id).to.eql(parseInt(pm.collectionVariables.get(\"productId\")));",
+                  "    pm.expect(response).to.have.property('category')",
+                  "    pm.expect(response.category).to.be.a('string')",
+                  "    pm.expect(response).to.have.property('name');",
+                  "    pm.expect(response.name).to.be.a('string');",
+                  "    pm.expect(response.isAvailable).to.eql(true);",
+                  "})",
+                  "",
+                  "pm.test(\"Schema is valid\", function () {",
+                  "    const schema = {",
+                  "        type: \"object\",",
+                  "        properties: {",
+                  "            id: {",
+                  "                type: \"integer\"",
+                  "            },",
+                  "            category: {",
+                  "                type: \"string\"",
+                  "            },",
+                  "            name: {",
+                  "                type: \"string\"",
+                  "            },",
+                  "            isAvailable: {",
+                  "                type: \"boolean\"",
+                  "            },",
+                  "            \"product-description\": {",
+                  "                type: \"string\"",
+                  "            },",
+                  "            additionalText: {",
+                  "                type: \"string\"",
+                  "            }",
+                  "        },",
+                  "        required: [\"id\", \"category\", \"name\", \"isAvailable\", \"product-description\", \"additionalText\"],",
+                  "        additionalProperties: false",
+                  "    };",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "})"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/products/:productId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                ":productId"
+              ],
+              "variable": [
+                {
+                  "key": "productId",
+                  "value": "{{productId}}"
+                }
+              ]
+            },
+            "description": "Retrieve a single product by specifying the product ID."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "clients",
+      "item": [
+        {
+          "name": "Register a new client",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"apiKey\", pm.response.json().token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{$randomExampleEmail}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clients",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clients"
+              ]
+            },
+            "description": "Register a new API client by providing an email address."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "orders",
+      "item": [
+        {
+          "name": "Create a new order",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"customerName\", pm.variables.replaceIn(\"{{$randomFullName}}\"));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let response;",
+                  "",
+                  "pm.test(\"Response body is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "    response = pm.response.json();",
+                  "    pm.collectionVariables.set(\"orderId\", response.id);",
+                  "})",
+                  "",
+                  "pm.test(\"Customer name\", function () {",
+                  "    pm.expect(response.customerName).to.eql(pm.collectionVariables.get(\"customerName\"))",
+                  "})",
+                  "",
+                  "pm.test(\"Order id format\", function () {",
+                  "    pm.expect(response.id).to.match(/^[A-Z0-9]{9}$/);",
+                  "})",
+                  "",
+                  "pm.test(\"Schema is valid\", function () {",
+                  "    const schema = {",
+                  "        type: \"object\",",
+                  "        properties: {",
+                  "            id: {",
+                  "                type: \"string\",",
+                  "                pattern: \"^[A-Z0-9]{9}$\"",
+                  "            },",
+                  "            clientId: {",
+                  "                type: \"string\"",
+                  "            },",
+                  "            created: {",
+                  "                type: \"string\",",
+                  "                format: \"date-time\"",
+                  "            },",
+                  "            customerName: {",
+                  "                type: \"string\"",
+                  "            },",
+                  "            products: {",
+                  "                type: \"array\",",
+                  "                items: {",
+                  "                    type: \"object\",",
+                  "                    properties: {",
+                  "                        id: {",
+                  "                            type: \"integer\"",
+                  "                        },",
+                  "                        quantity: {",
+                  "                            type: \"integer\"",
+                  "                        }",
+                  "                    },",
+                  "                    required: [\"id\", \"quantity\"]",
+                  "                }",
+                  "            }",
+                  "        },",
+                  "        required: [\"id\", \"clientId\", \"created\", \"customerName\", \"products\"],",
+                  "        additionalProperties: false",
+                  "    };",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "})"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"{{customerName}}\",\n  \"products\": [\n    {\n      \"id\": 2001,\n      \"quantity\": 1\n    },\n    {\n      \"id\": 2002,\n      \"quantity\": 3\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            },
+            "description": "Place a new order by providing customer details and ordered products."
+          },
+          "response": []
+        },
+        {
+          "name": "Get all orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get an order by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let response;",
+                  "",
+                  "pm.test(\"Response body is json\", function () {",
+                  "    pm.response.to.be.json;",
+                  "    response = pm.response.json();",
+                  "});",
+                  "",
+                  "pm.test(\"Order ID should be present in valid format\", function () {",
+                  "    pm.expect(response).to.have.property('id');",
+                  "    pm.expect(response.id).to.match(/^[A-Z0-9]{9}$/);",
+                  "})",
+                  "",
+                  "pm.test(\"Product should be present in valid format\", function () {",
+                  "    pm.expect(response).to.have.property('products');",
+                  "    pm.expect(response.products).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/:orderId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                ":orderId"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "apikey",
+        "apikey": [
+          {
+            "key": "value",
+            "value": "{{apiKey}}",
+            "type": "string"
+          },
+          {
+            "key": "key",
+            "value": "x-api-key",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://valentinos-coffee.herokuapp.com"
+    },
+    {
+      "key": "apiKey",
+      "value": "ENTER A VALID API KEY"
+    },
+    {
+      "key": "orderId",
+      "value": ""
+    },
+    {
+      "key": "productId",
+      "value": ""
+    },
+    {
+      "key": "customerName",
+      "value": ""
+    }
+  ]
+}
